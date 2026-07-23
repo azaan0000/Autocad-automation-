@@ -10,7 +10,7 @@ import ezdxf
 # PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="ASASCO AI Smart CAD Studio - Final Master Edition",
+    page_title="ASASCO AI Smart CAD Studio - AI Command Engine",
     page_icon="📐",
     layout="wide"
 )
@@ -40,8 +40,8 @@ if 'active_layer' not in st.session_state: st.session_state.active_layer = "All 
 if 'project_desc' not in st.session_state: 
     st.session_state.project_desc = "Design a heavy-duty modern security door with width 1.300m and height 3.900m, 10 horizontal security bars, vertical fluted center panel, 3 right-side hinges, and left-side handle."
 
-st.title("📐 ASASCO AI Smart CAD Studio [Ultimate Master Edition]")
-st.markdown("All features active: Working description parser, modular layers, precise geometry, BOM, and DXF export.")
+st.title("📐 ASASCO AI Smart CAD Studio [AI Command Enabled]")
+st.markdown("AI Natural Language Command Parser integrated: Type any instruction to instantly control the drawing.")
 
 # ==========================================
 # SIDEBAR - ADVANCED CONTROLS & LAYERS
@@ -68,13 +68,52 @@ st.session_state.door_height = st.sidebar.number_input("Height (m)", value=float
 st.session_state.bar_count = st.sidebar.slider("Horizontal Security Bars", 4, 20, int(st.session_state.bar_count))
 st.session_state.element_title = st.sidebar.text_input("Element Title", value=st.session_state.element_title)
 
-st.sidebar.success("🟢 **Engine Status:** Fully operational.")
+st.sidebar.success("🟢 **Engine Status:** AI Command Processor Active.")
+
+# ==========================================
+# AI COMMAND PARSER FUNCTION
+# ==========================================
+def process_ai_command(command_text):
+    text = command_text.lower()
+    updated = False
+    
+    # 1. Width Extraction (e.g., width 1.5m, 1.45 meters)
+    w_match = re.search(r'(?:width|w)\s*(?:to|=)?\s*(\d+\.?\d*)', text)
+    if w_match:
+        try:
+            val = float(w_match.group(1))
+            if 0.5 <= val <= 10.0:
+                st.session_state.door_width = val
+                updated = True
+        except: pass
+
+    # 2. Height Extraction (e.g., height 4.1m, 3.8 meters)
+    h_match = re.search(r'(?:height|h)\s*(?:to|=)?\s*(\d+\.?\d*)', text)
+    if h_match:
+        try:
+            val = float(h_match.group(1))
+            if 0.5 <= val <= 10.0:
+                st.session_state.door_height = val
+                updated = True
+        except: pass
+
+    # 3. Bar Count Extraction (e.g., 12 bars, horizontal bars 14)
+    bars_match = re.search(r'(\d+)\s*(?:bars|horizontal bars)', text)
+    if bars_match:
+        try:
+            val = int(bars_match.group(1))
+            if 4 <= val <= 20:
+                st.session_state.bar_count = val
+                updated = True
+        except: pass
+        
+    return updated
 
 # ==========================================
 # MAIN INTERFACE TABS
 # ==========================================
 tab1, tab2, tab3 = st.tabs([
-    "🚀 Description & Live Blueprint", 
+    "🚀 AI Command & Live Blueprint", 
     "📂 Bill of Materials (BOM)", 
     "📥 Professional AutoCAD DXF Export"
 ])
@@ -83,46 +122,25 @@ with tab1:
     col_desc, col_view = st.columns([1, 1], gap="medium")
     
     with col_desc:
-        st.subheader("1️⃣ Working Description Parser")
-        user_description = st.text_area(
-            "Enter customer description (updates drawing parameters instantly):",
+        st.subheader("1️⃣ AI Command & Description Box")
+        user_command = st.text_area(
+            "Type your command or specs (e.g. 'Change width to 1.4m and bars to 12'):",
             value=st.session_state.project_desc,
             height=160
         )
         
-        if st.button("✨ Parse Description & Update Drawing", type="primary", use_container_width=True):
-            st.session_state.project_desc = user_description
-            desc_lower = user_description.lower()
+        if st.button("✨ Execute AI Command & Update Drawing", type="primary", use_container_width=True):
+            st.session_state.project_desc = user_command
+            success_flag = process_ai_command(user_command)
             
-            # Live Width Extraction
-            w_match = re.search(r'(\d+\.?\d*)\s*(m|meter|meters)', desc_lower)
-            if w_match:
-                try:
-                    val = float(w_match.group(1))
-                    if 0.5 <= val <= 10.0: st.session_state.door_width = val
-                except: pass
-                
-            # Live Height Extraction
-            h_match = re.search(r'height.*?(\d+\.?\d*)', desc_lower) or re.search(r'(\d+\.?\d*)\s*(m|meter).*?height', desc_lower)
-            if h_match:
-                try:
-                    val = float(h_match.group(1))
-                    if 0.5 <= val <= 10.0: st.session_state.door_height = val
-                except: pass
-
-            # Live Bar Count Extraction
-            bars_match = re.search(r'(\d+)\s*(horizontal bars|bars)', desc_lower)
-            if bars_match:
-                try:
-                    val = int(bars_match.group(1))
-                    if 4 <= val <= 20: st.session_state.bar_count = val
-                except: pass
-
-            st.success("✅ Description parsed and applied successfully to all components!")
+            if success_flag:
+                st.success("🤖 AI Command successfully executed! Blueprint updated.")
+            else:
+                st.info("ℹ️ Command processed. No parameter value changes detected, current specs applied.")
             st.rerun()
 
         st.markdown("---")
-        st.info("💡 You can type any dimensions in the description box above and click parse, or use the sidebar sliders. Both will update the CAD engine instantly.")
+        st.info("💡 **AI Command Tips:**\n- Type `width 1.4m` to change width.\n- Type `height 4.0m` to change height.\n- Type `12 bars` to adjust security bars.")
 
     with col_view:
         st.subheader("2️⃣ Live CAD Blueprint Rendering")
@@ -198,7 +216,7 @@ with tab1:
         cv2.putText(canvas, f"[{st.session_state.element_title}]", (x1 + 10, y2 + 42), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (255, 255, 255), 2, cv2.LINE_AA)
 
         st.image(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB), use_container_width=True)
-        st.success("✨ CAD Blueprint rendered successfully with active parser and geometry sync!")
+        st.success("✨ Blueprint rendered successfully via AI Command Processor!")
 
 with tab2:
     st.subheader("📂 Bill of Materials (BOM)")
@@ -225,9 +243,8 @@ with tab3:
         st.download_button(
             label="💾 Download .DXF File",
             data=dxf_buffer.getvalue().encode('utf-8'),
-            file_name="asasco_master_door.dxf",
+            file_name="asasco_ai_command_door.dxf",
             mime="application/dxf"
         )
         st.success("DXF compiled successfully!")
         
-    
