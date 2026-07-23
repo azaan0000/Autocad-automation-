@@ -19,8 +19,8 @@
     <div class="flex items-center gap-3">
       <div class="bg-sky-600 p-2 rounded-xl text-lg shadow-lg shadow-sky-900/50">🏗️</div>
       <div>
-        <h1 class="text-base font-extrabold text-sky-400 tracking-wide">ASASCO CAD INDUSTRIAL SUITE <span class="text-[10px] bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded-full ml-2">v13.0 Strict-Match</span></h1>
-        <p class="text-[11px] text-slate-400">Strict Command-Driven Architectural CAD Engine</p>
+        <h1 class="text-base font-extrabold text-sky-400 tracking-wide">ASASCO CAD INDUSTRIAL SUITE <span class="text-[10px] bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded-full ml-2">v14.0 Ultimate</span></h1>
+        <p class="text-[11px] text-slate-400">Strict Template & Custom Pattern CAD Engine</p>
       </div>
     </div>
     
@@ -34,27 +34,26 @@
   <!-- MAIN WORKSPACE GRID -->
   <div class="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
     
-    <!-- LEFT SIDEBAR: COMMAND DESCRIPTION & CONTROLS -->
+    <!-- LEFT SIDEBAR: TEMPLATES & CUSTOMIZATION -->
     <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4 shadow-xl max-h-[86vh] overflow-y-auto">
       
-      <!-- ⌨️ STRICT COMMAND DESCRIPTION INPUT -->
-      <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
-        <h2 class="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
-          <span>⌨️</span> Natural Description Command
-        </h2>
-        <p class="text-[10px] text-slate-400">Yahan sirf wahi likhein jo banana hai (e.g., <code class="text-sky-300">door 1.1m 2.39m</code>)</p>
-        <div class="flex gap-2">
-          <input type="text" id="commandInput" placeholder="e.g. door 1.1m 2.39m" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-100 font-mono" value="door 1.1m 2.39m">
-          <button onclick="parseAndExecuteCommand()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded text-xs font-bold transition shadow">Generate</button>
+      <!-- 🏛️ MASTER TEMPLATES CATALOG (Aapke Custom Designs Section) -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+            <span>🏛️</span> Master Design Templates
+          </h2>
+          <span class="text-[10px] text-slate-400">Click to Load</span>
         </div>
+        <div class="grid grid-cols-1 gap-2" id="templateCatalogGrid"></div>
       </div>
 
       <hr class="border-slate-800">
 
-      <!-- 🎛️ MANUAL CONTROLS & PATTERN -->
+      <!-- 🎛️ FINE-TUNING & INFILL CONTROL -->
       <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
         <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1">
-          <span>🎛️</span> Fine-Tuning & Strict Infill
+          <span>🎛️</span> Selected Design Customization
         </h3>
         
         <div class="grid grid-cols-2 gap-2">
@@ -69,7 +68,7 @@
         </div>
 
         <div>
-          <label class="block text-[10px] text-slate-400 mb-1">Infill Pattern (Strict Optional)</label>
+          <label class="block text-[10px] text-slate-400 mb-1">Panel Infill Pattern (Aapki Marzi)</label>
           <select id="manualPattern" onchange="applyManualEdits()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-sky-300 font-semibold">
             <option value="none">None (Plain Frame Shell Only)</option>
             <option value="louvers">Horizontal Louvers</option>
@@ -81,7 +80,7 @@
 
         <div class="grid grid-cols-3 gap-2">
           <div>
-            <label class="block text-[10px] text-slate-400 mb-1">Panels</label>
+            <label class="block text-[10px] text-slate-400 mb-1">Sub-Panels</label>
             <input type="number" id="manualPanels" min="1" max="30" oninput="applyManualEdits()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-200">
           </div>
           <div>
@@ -120,7 +119,7 @@
 
         <div class="flex flex-wrap gap-2 pt-1 text-[11px]">
           <label class="flex items-center gap-1"><input type="checkbox" id="layerFrame" checked onchange="redrawCADCanvas()"> Frame</label>
-          <label class="flex items-center gap-1"><input type="checkbox" id="layerPattern" checked onchange="redrawCADCanvas()"> Infill Pattern</label>
+          <label class="flex items-center gap-1"><input type="checkbox" id="layerPattern" checked onchange="redrawCADCanvas()"> Pattern</label>
           <label class="flex items-center gap-1"><input type="checkbox" id="layerHardware" checked onchange="redrawCADCanvas()"> Hardware</label>
           <label class="flex items-center gap-1"><input type="checkbox" id="layerDims" checked onchange="redrawCADCanvas()"> Dimensions</label>
         </div>
@@ -155,8 +154,18 @@
     const canvas = document.getElementById('cadCanvas');
     const ctx = canvas.getContext('2d');
 
+    // Aap yahan apne mazeed naye designs templates ki shakal mein add kar sakte hain
+    const TEMPLATES_DATABASE = [
+      { id: 'T1', title: 'Plain Frame Shell', pattern: 'none', w: 1.10, h: 2.39, hinge: 'right', lock: 'left', panels: 1, icon: '🔲' },
+      { id: 'T2', title: 'Steel Louver Door', pattern: 'louvers', w: 1.10, h: 2.39, hinge: 'right', lock: 'left', panels: 10, icon: '🚪' },
+      { id: 'T3', title: 'Solid Security Door', pattern: 'solid', w: 1.00, h: 2.15, hinge: 'left', lock: 'right', panels: 1, icon: '🛡️' },
+      { id: 'T4', title: 'Executive Glass Door', pattern: 'glass', w: 1.00, h: 2.20, hinge: 'left', lock: 'right', panels: 4, icon: '🏛️' },
+      { id: 'T5', title: 'Decorative Grill Gate', pattern: 'grill', w: 1.30, h: 2.50, hinge: 'right', lock: 'left', panels: 6, icon: '✨' }
+    ];
+
     let currentDesign = {
-      title: "CUSTOM SHELL DESIGN",
+      id: 'T1',
+      title: "PLAIN FRAME SHELL",
       pattern: 'none',
       width: 1.100,
       height: 2.390,
@@ -171,44 +180,43 @@
     let activeTool = 'select';
     let isDragging = false, startX = 0, startY = 0;
 
-    // Strict Natural Description Parser
-    function parseAndExecuteCommand() {
-      const rawText = document.getElementById('commandInput').value.toLowerCase().trim();
-      
-      // Extract numbers with 'm' or raw floats
-      const matches = rawText.match(/(\d+(\.\d+)?)\s*m?/g);
-      
-      if (matches && matches.length >= 2) {
-        currentDesign.width = parseFloat(matches[0]);
-        currentDesign.height = parseFloat(matches[1]);
-      }
+    function renderTemplateCatalog() {
+      const grid = document.getElementById('templateCatalogGrid');
+      grid.innerHTML = TEMPLATES_DATABASE.map(t => `
+        <div onclick="loadTemplate('${t.id}')" class="bg-slate-950 border ${currentDesign.id === t.id ? 'border-sky-500 bg-sky-950/20' : 'border-slate-800 hover:border-slate-600'} p-2.5 rounded-xl cursor-pointer transition flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">${t.icon}</span>
+            <div>
+              <div class="text-xs font-bold text-slate-200 group-hover:text-sky-300">${t.title}</div>
+              <div class="text-[10px] text-slate-400">${t.w}m x ${t.h}m | Pattern: <span class="text-sky-400 uppercase">${t.pattern}</span></div>
+            </div>
+          </div>
+          <span class="text-[10px] bg-slate-900 border border-slate-700 px-2 py-1 rounded text-sky-400 font-mono">Load</span>
+        </div>
+      `).join('');
+    }
 
-      // Check explicit patterns mentioned in text
-      if (rawText.includes('louver') || rawText.includes('louvers')) {
-        currentDesign.pattern = 'louvers';
-        currentDesign.panels = 10;
-      } else if (rawText.includes('solid')) {
-        currentDesign.pattern = 'solid';
-        currentDesign.panels = 1;
-      } else if (rawText.includes('glass')) {
-        currentDesign.pattern = 'glass';
-        currentDesign.panels = 4;
-      } else if (rawText.includes('grill') || rawText.includes('jali')) {
-        currentDesign.pattern = 'grill';
-        currentDesign.panels = 6;
-      } else {
-        // Strict fallback: If user didn't write any pattern keyword, keep it 'none' (Plain frame shell)
-        currentDesign.pattern = 'none';
-        currentDesign.panels = 1;
-      }
+    function loadTemplate(id) {
+      const t = TEMPLATES_DATABASE.find(item => item.id === id);
+      if (!t) return;
+      currentDesign.id = t.id;
+      currentDesign.title = t.title.toUpperCase();
+      currentDesign.pattern = t.pattern;
+      currentDesign.width = t.w;
+      currentDesign.height = t.h;
+      currentDesign.hingeSide = t.hinge;
+      currentDesign.lockSide = t.lock;
+      currentDesign.panels = t.panels;
 
-      // Sync UI fields
       document.getElementById('manualW').value = currentDesign.width;
       document.getElementById('manualH').value = currentDesign.height;
       document.getElementById('manualPattern').value = currentDesign.pattern;
       document.getElementById('manualPanels').value = currentDesign.panels;
-      document.getElementById('activeDesignTitle').innerText = `Active: ${rawText.toUpperCase()}`;
+      document.getElementById('manualHingeSide').value = currentDesign.hingeSide;
+      document.getElementById('manualLockSide').value = currentDesign.lockSide;
+      document.getElementById('activeDesignTitle').innerText = `Active: ${t.title}`;
 
+      renderTemplateCatalog();
       redrawCADCanvas();
     }
 
@@ -262,7 +270,7 @@
         ctx.fillRect(6, 6, w - 12, h - 12);
       }
 
-      // Strict Conditional Rendering: Only render pattern if user explicitly selected/requested it
+      // Render pattern strictly based on user selection
       if (showPattern && currentDesign.pattern !== 'none') {
         const centerW = Math.max(20, w * 0.75);
         const centerX = (w - centerW) / 2;
@@ -343,8 +351,8 @@
       drawTitleBlock();
 
       const area = currentDesign.width * currentDesign.height;
-      const weight = area * (currentDesign.pattern === 'solid' ? 45.0 : 30.0);
-      const cost = area * 120;
+      const weight = area * (currentDesign.pattern === 'solid' ? 45.0 : 28.0);
+      const cost = area * 110;
       document.getElementById('bomArea').innerText = area.toFixed(2) + " m²";
       document.getElementById('bomWeight').innerText = weight.toFixed(1) + " kg";
       document.getElementById('bomCost').innerText = "$" + cost.toFixed(0);
@@ -394,7 +402,8 @@
     }
 
     window.onload = () => {
-      parseAndExecuteCommand();
+      renderTemplateCatalog();
+      loadTemplate('T1');
     };
   </script>
 </body>
