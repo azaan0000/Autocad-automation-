@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ASASCO Pure AI Prompt-Driven CAD Studio</title>
+  <title>ASASCO Smart AI CAD & Schedule Generator Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     .active-card { border-color: #38bdf8 !important; background-color: rgba(14, 165, 233, 0.15) !important; }
+    .pulsing-mic { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.08); } 100% { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans p-2 md:p-6">
 
   <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <!-- LEFT PANEL: PURE PROMPT & VOICE CONTROLS -->
+    <!-- LEFT PANEL: SMART CONTROLS -->
     <div class="lg:col-span-5 bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-5 flex flex-col justify-between">
       
       <div class="space-y-4">
@@ -24,39 +26,92 @@
         <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
           <div>
             <h1 class="text-xl font-extrabold text-sky-400 flex items-center gap-2">
-              <span>🤖</span> ASASCO AI Prompt Studio
+              <span>🤖</span> ASASCO Smart AI CAD Studio
             </h1>
-            <p class="text-xs text-slate-400">Pure Description-Driven CAD Engine</p>
+            <p class="text-xs text-slate-400">Advanced Auto-Blueprint & Schedule Generator Pro</p>
           </div>
-          <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full font-bold">Pure AI v6.0</span>
+          <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full font-bold">AI Active v5.1</span>
         </div>
 
         <!-- 🎙️ PROMPT & VOICE PARSER -->
-        <div class="bg-gradient-to-r from-slate-950 to-sky-950/40 p-4 rounded-xl border border-sky-800/60 shadow-inner space-y-3">
-          <div class="flex justify-between items-center">
+        <div class="bg-gradient-to-r from-slate-950 to-sky-950/40 p-4 rounded-xl border border-sky-800/60 shadow-inner">
+          <div class="flex justify-between items-center mb-2">
             <label class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
-              <span>🗣️</span> Enter Complete Description / Voice
+              <span>🗣️</span> Advanced Prompt & Voice Parser
             </label>
             <button id="micBtn" onclick="toggleVoiceRecognition()" class="bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
-              <span>🎙️</span> Speak
+              <span id="micIcon">🎙️</span> <span id="micText">Speak Urdu/Eng</span>
             </button>
           </div>
-          
-          <textarea id="aiPromptInput" rows="3" placeholder="Ex: 'Ek steel louver door banana hai jiski width 1.1 meter, height 2.39 meter, aur andar 10 louver panels hon sath mein center patti ho'" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-sky-500"></textarea>
-          
-          <button onclick="processAdvancedPrompt()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-1.5 shadow-lg">
-            ⚡ Generate Complete Design from Description
-          </button>
-          
-          <p id="aiPromptFeedback" class="text-[10px] text-amber-400">💡 Tip: Description mein dimensions aur panels batayein, AI khud sab adjust kar dega.</p>
+          <div class="relative">
+            <input type="text" id="aiPromptInput" placeholder="Ex: '1.1 by 2.39 meter ka louver door jisme 10 panels ho'" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 pr-20 focus:outline-none focus:border-sky-500">
+            <button onclick="processAdvancedPrompt()" class="absolute right-1 top-1 bottom-1 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-3 rounded-lg transition">
+              AI Detect ⚡
+            </button>
+          </div>
+          <p id="aiPromptFeedback" class="text-[10px] text-amber-400 mt-1.5 hidden">💡 AI extracting width, height, panels & frame specifications...</p>
         </div>
 
-        <!-- 🖼️ PRESET TEMPLATES -->
+        <!-- 🖼️ VISUAL TEMPLATE SELECTOR -->
         <div>
           <label class="block text-xs font-bold text-amber-400 mb-2 flex items-center gap-1.5">
-            <span>🖼️</span> Quick Template Samples
+            <span>🖼️</span> Select Design Catalog Template
           </label>
           <div class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-1" id="visualCardsGrid"></div>
+        </div>
+
+        <!-- ⚙️ PRECISE MANUAL CUSTOMIZATION -->
+        <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-slate-300 flex items-center gap-1">
+              <span>📏</span> Custom Parameters & Dimensions
+            </span>
+            <span class="text-[10px] text-sky-400 bg-sky-950 px-2 py-0.5 rounded border border-sky-800" id="currentSelectedTypeLabel">Selected: Steel Louver Door</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Tag / Code</label>
+              <input type="text" id="itemTag" value="D1" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs font-bold text-sky-300">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Width (M) [e.g. 1.1]</label>
+              <input type="number" id="itemWidth" value="1.100" step="0.05" oninput="previewCurrentItem()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Height (M) [e.g. 2.39]</label>
+              <input type="number" id="itemHeight" value="2.390" step="0.05" oninput="previewCurrentItem()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            </div>
+          </div>
+
+          <!-- Advanced Custom Controls -->
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Louver Panels</label>
+              <input type="number" id="panelCount" value="10" min="1" max="30" oninput="previewCurrentItem()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Outer Frame (mm)</label>
+              <input type="number" id="outerFrame" value="45" min="10" max="150" oninput="previewCurrentItem()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 mb-1">Center Bar Width</label>
+              <input type="number" id="centerBar" value="40" min="10" max="200" oninput="previewCurrentItem()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+            </div>
+          </div>
+
+          <input type="hidden" id="itemTitle" value="DOOR STEEL (Men)">
+          <input type="hidden" id="itemType" value="steel_louver">
+          <input type="hidden" id="glassStyle" value="dark_steel">
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button onclick="previewCurrentItem()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl transition text-xs flex items-center justify-center gap-1">
+              👁️ Refresh Preview
+            </button>
+            <button onclick="addItemToSchedule()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl transition text-xs flex items-center justify-center gap-1">
+              ➕ Add to Schedule
+            </button>
+          </div>
         </div>
 
         <!-- QUEUE & COST -->
@@ -69,17 +124,13 @@
           </div>
           
           <div id="scheduleQueueList" class="max-h-24 overflow-y-auto space-y-1 text-xs text-slate-300 pr-1">
-            <p class="text-[11px] text-slate-500 italic">Abhi koi item add nahi hua.</p>
+            <p class="text-[11px] text-slate-500 italic">Abhi koi item add nahi hua. 'Add to Schedule' dabain.</p>
           </div>
 
           <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-[11px] flex justify-between items-center text-slate-300">
             <span>Total Area: <strong id="totalAreaText" class="text-sky-400">0.00 sq.m</strong></span>
             <span class="text-emerald-400 font-bold" id="totalCostText">Approx: $0</span>
           </div>
-
-          <button onclick="addItemToSchedule()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-1">
-            ➕ Add Current Design to Schedule
-          </button>
 
           <button onclick="renderA3ScheduleSheet()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition shadow-lg text-xs flex items-center justify-center gap-1">
             📜 Generate Full A3 Blueprint Sheet
@@ -125,28 +176,20 @@
     const ctx = canvas.getContext('2d');
 
     let scheduleQueue = [];
-    let currentItem = {
-      tag: "D1",
-      title: "DOOR STEEL (Men)",
-      width: 1.100,
-      height: 2.390,
-      panels: 10,
-      frame: 45,
-      center: 40,
-      type: "steel_louver"
-    };
+    let selectedPresetKey = 'D1';
 
     const VISUAL_TEMPLATES = [
-      { id: 'D1', title: 'DOOR STEEL (Men)', desc: 'Steel louver door width 1.1 height 2.39 with 10 panels', w: 1.1, h: 2.39, panels: 10, icon: '🚪' },
-      { id: 'D2', title: 'Panel Glass Door', desc: 'Panel glass door width 1.0 height 2.2 with 4 panels', w: 1.0, h: 2.2, panels: 4, icon: '🏛️' },
-      { id: 'D3', title: 'Geometric Cut Door', desc: 'Geometric cut door width 1.2 height 2.4 with 6 panels', w: 1.2, h: 2.4, panels: 6, icon: '✨' },
-      { id: 'D4', title: 'Heavy Garage Gate', desc: 'Heavy garage gate width 3.5 height 3.5 with 16 panels', w: 3.5, h: 3.5, panels: 16, icon: '🚘' }
+      { id: 'D1', title: 'DOOR STEEL (Men)', sub: 'Louver + Center Bar', w: 1.1, h: 2.39, panels: 10, frame: 45, center: 40, type: 'steel_louver', glass: 'dark_steel', icon: '🚪' },
+      { id: 'D2', title: 'Panel Glass Door', sub: 'Multi-Panel Glass Design', w: 1.0, h: 2.2, panels: 4, frame: 50, center: 35, type: 'panel_glass', glass: 'blue', icon: '🏛️' },
+      { id: 'D3', title: 'Geometric Cut Door', sub: 'Diagonal Bars & Glass', w: 1.2, h: 2.4, panels: 6, frame: 60, center: 50, type: 'geometric', glass: 'blue', icon: '✨' },
+      { id: 'D4', title: 'Heavy Garage Gate', sub: 'Double Leaf Heavy Steel', w: 3.5, h: 3.5, panels: 16, frame: 80, center: 60, type: 'steel_louver', glass: 'dark_steel', icon: '🚘' }
     ];
 
     const CAD_STYLE = {
       bg: "#FFFFFF",
       stroke: "#111111",
       redDim: "#D32F2F",
+      blueGlass: "#2563EB",
       steelDark: "#22252A",
       steelLouverLine: "#E2E8F0"
     };
@@ -154,19 +197,32 @@
     function renderVisualCards() {
       const grid = document.getElementById('visualCardsGrid');
       grid.innerHTML = VISUAL_TEMPLATES.map(t => `
-        <div onclick="loadPreset('${t.id}')" id="card-${t.id}" class="cursor-pointer bg-slate-900 border border-slate-800 hover:border-sky-500/80 p-2 rounded-xl transition flex flex-col items-center text-center group">
+        <div onclick="selectVisualTemplate('${t.id}')" id="card-${t.id}" class="cursor-pointer bg-slate-900 border border-slate-800 hover:border-sky-500/80 p-2 rounded-xl transition flex flex-col items-center text-center group ${t.id === selectedPresetKey ? 'active-card' : ''}">
           <div class="text-xl mb-0.5 group-hover:scale-110 transition-transform">${t.icon}</div>
           <div class="text-[10px] font-bold text-slate-200 group-hover:text-sky-300 leading-tight">${t.title}</div>
-          <div class="text-[8px] text-slate-400 mt-0.5">Preset</div>
+          <div class="text-[8px] text-slate-400 mt-0.5">${t.sub}</div>
         </div>
       `).join('');
     }
 
-    function loadPreset(id) {
+    function selectVisualTemplate(id) {
+      selectedPresetKey = id;
       const t = VISUAL_TEMPLATES.find(item => item.id === id);
       if (!t) return;
-      document.getElementById('aiPromptInput').value = t.desc;
-      processAdvancedPrompt();
+
+      document.getElementById('itemTag').value = t.id;
+      document.getElementById('itemTitle').value = t.title;
+      document.getElementById('itemWidth').value = t.w;
+      document.getElementById('itemHeight').value = t.h;
+      document.getElementById('panelCount').value = t.panels;
+      document.getElementById('outerFrame').value = t.frame;
+      document.getElementById('centerBar').value = t.center;
+      document.getElementById('itemType').value = t.type;
+      document.getElementById('glassStyle').value = t.glass;
+      document.getElementById('currentSelectedTypeLabel').innerText = `Selected: ${t.title}`;
+
+      renderVisualCards();
+      previewCurrentItem();
     }
 
     function processAdvancedPrompt() {
@@ -174,43 +230,40 @@
       if (!prompt) return;
 
       const feedback = document.getElementById('aiPromptFeedback');
-      feedback.innerText = "✨ AI Analyzing description & generating design...";
+      feedback.innerText = "✨ AI Analyzing dimensions, panels & frame specifications...";
+      feedback.classList.remove('hidden');
 
       setTimeout(() => {
-        // Extract numbers dynamically from description text
+        let width = 1.1;
+        let height = 2.39;
+        let panels = 10;
+        let frame = 45;
+        let center = 40;
+
         const numbers = prompt.match(/\d+(\.\d+)?/g);
         if (numbers && numbers.length >= 2) {
-          currentItem.width = parseFloat(numbers[0]);
-          currentItem.height = parseFloat(numbers[1]);
+          width = parseFloat(numbers[0]);
+          height = parseFloat(numbers[1]);
         } else if (numbers && numbers.length === 1) {
-          currentItem.width = parseFloat(numbers[0]);
+          width = parseFloat(numbers[0]);
         }
 
         const pMatch = prompt.match(/(\d+)\s*(panel|panels)/);
-        if (pMatch) {
-          currentItem.panels = parseInt(pMatch[1]);
-        }
+        if (pMatch) panels = parseInt(pMatch[1]);
 
-        if (prompt.includes('garage') || prompt.includes('gate')) {
-          currentItem.tag = "G1";
-          currentItem.title = "HEAVY GARAGE GATE";
-        } else if (prompt.includes('glass')) {
-          currentItem.tag = "D2";
-          currentItem.title = "PANEL GLASS DOOR";
-        } else {
-          currentItem.tag = "D1";
-          currentItem.title = "DOOR STEEL (Louver)";
-        }
+        document.getElementById('itemWidth').value = width;
+        document.getElementById('itemHeight').value = height;
+        document.getElementById('panelCount').value = panels;
 
         previewCurrentItem();
-        feedback.innerText = `✓ Generated successfully! W: ${currentItem.width}m, H: ${currentItem.height}m, Panels: ${currentItem.panels}`;
-      }, 300);
+        feedback.innerText = `✓ AI Extracted: W:${width}m, H:${height}m, Panels:${panels}!`;
+      }, 400);
     }
 
     let recognition;
     function toggleVoiceRecognition() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("Speech recognition not supported.");
+        alert("Speech recognition not supported in this browser.");
         return;
       }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -225,8 +278,22 @@
       recognition.start();
     }
 
+    function getFormItem() {
+      return {
+        tag: document.getElementById('itemTag').value,
+        title: document.getElementById('itemTitle').value,
+        width: parseFloat(document.getElementById('itemWidth').value) || 1.1,
+        height: parseFloat(document.getElementById('itemHeight').value) || 2.39,
+        panels: parseInt(document.getElementById('panelCount').value) || 10,
+        frame: parseInt(document.getElementById('outerFrame').value) || 45,
+        center: parseInt(document.getElementById('centerBar').value) || 40,
+        type: document.getElementById('itemType').value,
+        glass: document.getElementById('glassStyle').value
+      };
+    }
+
     function addItemToSchedule() {
-      scheduleQueue.push({...currentItem});
+      scheduleQueue.push(getFormItem());
       updateQueueUI();
     }
 
@@ -261,11 +328,12 @@
       canvas.height = 750;
       clearCanvasSheet();
 
-      const scale = Math.min(280 / currentItem.width, 420 / currentItem.height);
-      const startX = (canvas.width - currentItem.width * scale) / 2 - 50;
-      const startY = (canvas.height - currentItem.height * scale) / 2 - 30;
+      const item = getFormItem();
+      const scale = Math.min(280 / item.width, 420 / item.height);
+      const startX = (canvas.width - item.width * scale) / 2 - 50;
+      const startY = (canvas.height - item.height * scale) / 2 - 30;
 
-      drawCADElement(currentItem, startX, startY, scale);
+      drawCADElement(item, startX, startY, scale);
       drawTitleBlock();
     }
 
@@ -300,7 +368,7 @@
     function drawCADElement(item, x, y, scale) {
       const w = item.width * scale;
       const h = item.height * scale;
-      const frameOffset = 4;
+      const frameOffset = Math.max(2, (item.frame / 100) * scale * 0.1);
 
       ctx.save();
       ctx.translate(x, y);
@@ -315,14 +383,14 @@
       ctx.fillRect(frameOffset, frameOffset, w - (frameOffset * 2), h - (frameOffset * 2));
 
       // Center Bar & Louver Generation
-      const centerBarW = Math.max(10, 35);
+      const centerBarW = Math.max(10, (item.center / 1000) * scale);
       const centerBarX = (w - centerBarW) / 2;
 
       ctx.strokeStyle = "#FFFFFF";
       ctx.lineWidth = 1.2;
       ctx.strokeRect(centerBarX, frameOffset + 5, centerBarW, h - (frameOffset * 2) - 10);
 
-      const subCount = Math.min(30, Math.max(2, item.panels));
+      const subCount = Math.min(25, Math.max(2, item.panels));
       const stepY = (h - (frameOffset * 2) - 10) / subCount;
 
       for (let c = 1; c < subCount; c++) {
@@ -418,11 +486,11 @@
       ctx.font = "8px sans-serif";
       ctx.fillText(sheetTitle, tbX + tbW / 2, tbY + 90);
       ctx.fillText("DATE: " + new Date().toLocaleDateString(), tbX + tbW / 2, tbY + 110);
-      ctx.fillText("SCALE: 1:50 | PURE AI ENGINE", tbX + tbW / 2, tbY + 125);
+      ctx.fillText("SCALE: 1:50 | PRO CAD ENGINE", tbX + tbW / 2, tbY + 125);
     }
 
     function exportDXF() {
-      const items = scheduleQueue.length > 0 ? scheduleQueue : [currentItem];
+      const items = scheduleQueue.length > 0 ? scheduleQueue : [getFormItem()];
       let dxf = `0\nSECTION\n2\nENTITIES\n`;
       items.forEach((item, idx) => {
         dxf += `0\nPOLYLINE\n8\nFRAME\n66\n1\n70\n1\n0\nVERTEX\n8\nFRAME\n10\n${idx*3}\n20\n0\n0\nVERTEX\n8\nFRAME\n10\n${idx*3 + item.width}\n20\n0\n0\nVERTEX\n8\nFRAME\n10\n${idx*3 + item.width}\n20\n${item.height}\n0\nVERTEX\n8\nFRAME\n10\n${idx*3}\n20\n${item.height}\n0\nSEQEND\n`;
@@ -453,8 +521,7 @@
 
     window.onload = () => {
       renderVisualCards();
-      document.getElementById('aiPromptInput').value = "Steel louver door width 1.1 meter height 2.39 meter with 10 panels";
-      processAdvancedPrompt();
+      selectVisualTemplate('D1');
     };
   </script>
 </body>
