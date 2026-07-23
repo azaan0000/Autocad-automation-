@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASASCO Pure AI Prompt-Driven CAD Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .active-card { border-color: #38bdf8 !important; background-color: rgba(14, 165, 233, 0.15) !important; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans p-2 md:p-6">
+
+  <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT PANEL: PURE PROMPT & VOICE CONTROLS -->
+    <div class="lg:col-span-5 bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-5 flex flex-col justify-between">
+      
+      <div class="space-y-4">
+        <!-- Header -->
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+          <div>
+            <h1 class="text-xl font-extrabold text-sky-400 flex items-center gap-2">
+              <span>🤖</span> ASASCO AI Prompt Studio
+            </h1>
+            <p class="text-xs text-slate-400">Pure Description-Driven CAD Engine</p>
+          </div>
+          <span class="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2.5 py-1 rounded-full font-bold">Pure AI v6.0</span>
+        </div>
+
+        <!-- 🎙️ PROMPT & VOICE PARSER -->
+        <div class="bg-gradient-to-r from-slate-950 to-sky-950/40 p-4 rounded-xl border border-sky-800/60 shadow-inner space-y-3">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+              <span>🗣️</span> Enter Complete Description / Voice
+            </label>
+            <button id="micBtn" onclick="toggleVoiceRecognition()" class="bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+              <span>🎙️</span> Speak
+            </button>
+          </div>
+          
+          <textarea id="aiPromptInput" rows="3" placeholder="Ex: 'Ek steel louver door banana hai jiski width 1.1 meter, height 2.39 meter, aur andar 10 louver panels hon sath mein center patti ho'" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-sky-500"></textarea>
+          
+          <button onclick="processAdvancedPrompt()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-1.5 shadow-lg">
+            ⚡ Generate Complete Design from Description
+          </button>
+          
+          <p id="aiPromptFeedback" class="text-[10px] text-amber-400">💡 Tip: Description mein dimensions aur panels batayein, AI khud sab adjust kar dega.</p>
+        </div>
+
+        <!-- 🖼️ PRESET TEMPLATES -->
+        <div>
+          <label class="block text-xs font-bold text-amber-400 mb-2 flex items-center gap-1.5">
+            <span>🖼️</span> Quick Template Samples
+          </label>
+          <div class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto p-1" id="visualCardsGrid"></div>
+        </div>
+
+        <!-- QUEUE & COST -->
+        <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+              <span>📋</span> Schedule Queue (<span id="queueCount">0</span> Items)
+            </span>
+            <button onclick="clearSchedule()" class="text-[10px] text-rose-400 hover:underline">Clear All</button>
+          </div>
+          
+          <div id="scheduleQueueList" class="max-h-24 overflow-y-auto space-y-1 text-xs text-slate-300 pr-1">
+            <p class="text-[11px] text-slate-500 italic">Abhi koi item add nahi hua.</p>
+          </div>
+
+          <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-[11px] flex justify-between items-center text-slate-300">
+            <span>Total Area: <strong id="totalAreaText" class="text-sky-400">0.00 sq.m</strong></span>
+            <span class="text-emerald-400 font-bold" id="totalCostText">Approx: $0</span>
+          </div>
+
+          <button onclick="addItemToSchedule()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-1">
+            ➕ Add Current Design to Schedule
+          </button>
+
+          <button onclick="renderA3ScheduleSheet()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition shadow-lg text-xs flex items-center justify-center gap-1">
+            📜 Generate Full A3 Blueprint Sheet
+          </button>
+        </div>
+
+        <!-- Title Block -->
+        <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 space-y-1.5">
+          <label class="block text-[11px] font-bold text-slate-400">🏷️ Title Block Info</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="projName" value="RESIDENTIAL VILLA" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200">
+            <input type="text" id="sheetTitle" value="DOORS & WINDOWS SCHEDULE" class="bg-slate-900 border border-slate-800 rounded p-1.5 text-[11px] text-slate-200">
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Buttons -->
+      <div class="pt-3 border-t border-slate-800 grid grid-cols-4 gap-2">
+        <button onclick="exportDXF()" class="px-2 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-semibold text-sky-300 transition text-center">📐 DXF</button>
+        <button onclick="exportSVG()" class="px-2 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-semibold text-amber-300 transition text-center">🎨 SVG</button>
+        <button onclick="exportPDF()" class="px-2 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-semibold text-rose-300 transition text-center">🖨️ PDF</button>
+        <button onclick="downloadImage()" class="px-2 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[11px] font-semibold text-white transition text-center">🖼️ Image</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: CANVAS -->
+    <div class="lg:col-span-7 bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-800 shadow-2xl flex flex-col items-center justify-start overflow-x-auto">
+      <div class="w-full flex justify-between items-center mb-3">
+        <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+          <span>📐</span> Live CAD Precision View
+        </h2>
+        <span id="canvasBadge" class="text-xs text-emerald-400 font-mono bg-emerald-950/80 px-2.5 py-0.5 border border-emerald-800 rounded">Single Preview Mode</span>
+      </div>
+
+      <div class="w-full bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-center items-center overflow-auto min-h-[600px]">
+        <canvas id="blueprintCanvas" width="1100" height="750" class="bg-white rounded border border-slate-400 shadow-2xl max-w-full h-auto"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('blueprintCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let scheduleQueue = [];
+    let currentItem = {
+      tag: "D1",
+      title: "DOOR STEEL (Men)",
+      width: 1.100,
+      height: 2.390,
+      panels: 10,
+      frame: 45,
+      center: 40,
+      type: "steel_louver"
+    };
+
+    const VISUAL_TEMPLATES = [
+      { id: 'D1', title: 'DOOR STEEL (Men)', desc: 'Steel louver door width 1.1 height 2.39 with 10 panels', w: 1.1, h: 2.39, panels: 10, icon: '🚪' },
+      { id: 'D2', title: 'Panel Glass Door', desc: 'Panel glass door width 1.0 height 2.2 with 4 panels', w: 1.0, h: 2.2, panels: 4, icon: '🏛️' },
+      { id: 'D3', title: 'Geometric Cut Door', desc: 'Geometric cut door width 1.2 height 2.4 with 6 panels', w: 1.2, h: 2.4, panels: 6, icon: '✨' },
+      { id: 'D4', title: 'Heavy Garage Gate', desc: 'Heavy garage gate width 3.5 height 3.5 with 16 panels', w: 3.5, h: 3.5, panels: 16, icon: '🚘' }
+    ];
+
+    const CAD_STYLE = {
+      bg: "#FFFFFF",
+      stroke: "#111111",
+      redDim: "#D32F2F",
+      steelDark: "#22252A",
+      steelLouverLine: "#E2E8F0"
+    };
+
+    function renderVisualCards() {
+      const grid = document.getElementById('visualCardsGrid');
+      grid.innerHTML = VISUAL_TEMPLATES.map(t => `
+        <div onclick="loadPreset('${t.id}')" id="card-${t.id}" class="cursor-pointer bg-slate-900 border border-slate-800 hover:border-sky-500/80 p-2 rounded-xl transition flex flex-col items-center text-center group">
+          <div class="text-xl mb-0.5 group-hover:scale-110 transition-transform">${t.icon}</div>
+          <div class="text-[10px] font-bold text-slate-200 group-hover:text-sky-300 leading-tight">${t.title}</div>
+          <div class="text-[8px] text-slate-400 mt-0.5">Preset</div>
+        </div>
+      `).join('');
+    }
+
+    function loadPreset(id) {
+      const t = VISUAL_TEMPLATES.find(item => item.id === id);
+      if (!t) return;
+      document.getElementById('aiPromptInput').value = t.desc;
+      processAdvancedPrompt();
+    }
+
+    function processAdvancedPrompt() {
+      const prompt = document.getElementById('aiPromptInput').value.toLowerCase().trim();
+      if (!prompt) return;
+
+      const feedback = document.getElementById('aiPromptFeedback');
+      feedback.innerText = "✨ AI Analyzing description & generating design...";
+
+      setTimeout(() => {
+        // Extract numbers dynamically from description text
+        const numbers = prompt.match(/\d+(\.\d+)?/g);
+        if (numbers && numbers.length >= 2) {
+          currentItem.width = parseFloat(numbers[0]);
+          currentItem.height = parseFloat(numbers[1]);
+        } else if (numbers && numbers.length === 1) {
+          currentItem.width = parseFloat(numbers[0]);
+        }
+
+        const pMatch = prompt.match(/(\d+)\s*(panel|panels)/);
+        if (pMatch) {
+          currentItem.panels = parseInt(pMatch[1]);
+        }
+
+        if (prompt.includes('garage') || prompt.includes('gate')) {
+          currentItem.tag = "G1";
+          currentItem.title = "HEAVY GARAGE GATE";
+        } else if (prompt.includes('glass')) {
+          currentItem.tag = "D2";
+          currentItem.title = "PANEL GLASS DOOR";
+        } else {
+          currentItem.tag = "D1";
+          currentItem.title = "DOOR STEEL (Louver)";
+        }
+
+        previewCurrentItem();
+        feedback.innerText = `✓ Generated successfully! W: ${currentItem.width}m, H: ${currentItem.height}m, Panels: ${currentItem.panels}`;
+      }, 300);
+    }
+
+    let recognition;
+    function toggleVoiceRecognition() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Speech recognition not supported.");
+        return;
+      }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'ur-PK';
+        recognition.onresult = (event) => {
+          document.getElementById('aiPromptInput').value = event.results[0][0].transcript;
+          processAdvancedPrompt();
+        };
+      }
+      recognition.start();
+    }
+
+    function addItemToSchedule() {
+      scheduleQueue.push({...currentItem});
+      updateQueueUI();
+    }
+
+    function updateQueueUI() {
+      document.getElementById('queueCount').innerText = scheduleQueue.length;
+      const list = document.getElementById('scheduleQueueList');
+      let totalArea = 0;
+      if (scheduleQueue.length === 0) {
+        list.innerHTML = `<p class="text-[11px] text-slate-500 italic">Abhi koi item add nahi hua.</p>`;
+      } else {
+        list.innerHTML = scheduleQueue.map((item, idx) => {
+          const area = item.width * item.height;
+          totalArea += area;
+          return `
+            <div class="flex justify-between items-center bg-slate-900 px-2 py-1.5 rounded border border-slate-800">
+              <span class="truncate"><strong class="text-amber-400">[${item.tag}]</strong> ${item.title} (${item.width}m x ${item.height}m)</span>
+              <button onclick="removeItem(${idx})" class="text-rose-400 hover:text-rose-300 font-bold ml-2">✕</button>
+            </div>
+          `;
+        }).join('');
+      }
+      document.getElementById('totalAreaText').innerText = `${totalArea.toFixed(2)} sq.m`;
+      document.getElementById('totalCostText').innerText = `Approx: $${(totalArea * 130).toFixed(0)}`;
+    }
+
+    function removeItem(idx) { scheduleQueue.splice(idx, 1); updateQueueUI(); }
+    function clearSchedule() { scheduleQueue = []; updateQueueUI(); }
+
+    function previewCurrentItem() {
+      document.getElementById('canvasBadge').innerText = "Single Preview Mode";
+      canvas.width = 1100;
+      canvas.height = 750;
+      clearCanvasSheet();
+
+      const scale = Math.min(280 / currentItem.width, 420 / currentItem.height);
+      const startX = (canvas.width - currentItem.width * scale) / 2 - 50;
+      const startY = (canvas.height - currentItem.height * scale) / 2 - 30;
+
+      drawCADElement(currentItem, startX, startY, scale);
+      drawTitleBlock();
+    }
+
+    function renderA3ScheduleSheet() {
+      if (scheduleQueue.length === 0) { alert("Pehle items queue me add karein!"); return; }
+      document.getElementById('canvasBadge').innerText = "Full A3 Schedule Sheet Mode";
+      canvas.width = 1200;
+      canvas.height = 800;
+      clearCanvasSheet();
+
+      const tbWidth = 180;
+      const availableWidth = canvas.width - tbWidth - 60;
+      const cols = 4;
+      const cellW = availableWidth / cols;
+      const cellH = 320;
+
+      scheduleQueue.forEach((item, index) => {
+        const row = Math.floor(index / cols);
+        const col = index % cols;
+        const cellX = 40 + col * cellW;
+        const cellY = 50 + row * cellH;
+
+        const scale = Math.min((cellW - 50) / item.width, (cellH - 90) / item.height);
+        const startX = cellX + (cellW - item.width * scale) / 2;
+        const startY = cellY + (cellH - item.height * scale) / 2 - 15;
+
+        drawCADElement(item, startX, startY, scale);
+      });
+      drawTitleBlock();
+    }
+
+    function drawCADElement(item, x, y, scale) {
+      const w = item.width * scale;
+      const h = item.height * scale;
+      const frameOffset = 4;
+
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Outer Frame
+      ctx.strokeStyle = CAD_STYLE.stroke;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(0, 0, w, h);
+
+      // Inner Panel Fill
+      ctx.fillStyle = CAD_STYLE.steelDark;
+      ctx.fillRect(frameOffset, frameOffset, w - (frameOffset * 2), h - (frameOffset * 2));
+
+      // Center Bar & Louver Generation
+      const centerBarW = Math.max(10, 35);
+      const centerBarX = (w - centerBarW) / 2;
+
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(centerBarX, frameOffset + 5, centerBarW, h - (frameOffset * 2) - 10);
+
+      const subCount = Math.min(30, Math.max(2, item.panels));
+      const stepY = (h - (frameOffset * 2) - 10) / subCount;
+
+      for (let c = 1; c < subCount; c++) {
+        const cy = frameOffset + 5 + c * stepY;
+        ctx.beginPath();
+        ctx.moveTo(centerBarX, cy);
+        ctx.lineTo(centerBarX + centerBarW, cy);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = CAD_STYLE.steelLouverLine;
+      ctx.lineWidth = 0.8;
+      for (let i = 1; i < subCount; i++) {
+        const ly = frameOffset + 5 + i * stepY;
+        ctx.beginPath();
+        ctx.moveTo(frameOffset + 3, ly);
+        ctx.lineTo(centerBarX - 2, ly);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerBarX + centerBarW + 2, ly);
+        ctx.lineTo(w - frameOffset - 3, ly);
+        ctx.stroke();
+      }
+
+      // Dimension lines & Labels
+      ctx.strokeStyle = CAD_STYLE.redDim;
+      ctx.fillStyle = CAD_STYLE.redDim;
+      ctx.font = "bold 9px monospace";
+      ctx.textAlign = "center";
+
+      ctx.beginPath();
+      ctx.moveTo(0, -8); ctx.lineTo(w, -8);
+      ctx.moveTo(0, -12); ctx.lineTo(0, -4);
+      ctx.moveTo(w, -12); ctx.lineTo(w, -4);
+      ctx.stroke();
+      ctx.fillText(item.width.toFixed(3) + "m", w / 2, -11);
+
+      ctx.beginPath();
+      ctx.moveTo(-8, 0); ctx.lineTo(-8, h);
+      ctx.moveTo(-12, 0); ctx.lineTo(-4, 0);
+      ctx.moveTo(-12, h); ctx.lineTo(-4, h);
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(-13, h / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText(item.height.toFixed(3) + "m", 0, 0);
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.arc(w / 2 - 35, h + 18, 7, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.font = "bold 8px Arial";
+      ctx.fillText(item.tag, w / 2 - 35, h + 21);
+
+      ctx.textAlign = "left";
+      ctx.fillText(item.title, w / 2 - 24, h + 21);
+
+      ctx.restore();
+    }
+
+    function clearCanvasSheet() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = CAD_STYLE.bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+    }
+
+    function drawTitleBlock() {
+      const tbW = 180;
+      const tbH = canvas.height - 20;
+      const tbX = canvas.width - 10 - tbW;
+      const tbY = 10;
+
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(tbX, tbY, tbW, tbH);
+
+      const projName = document.getElementById('projName').value || "RESIDENTIAL VILLA";
+      const sheetTitle = document.getElementById('sheetTitle').value || "SCHEDULE SHEET";
+
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("ASASCO", tbX + tbW / 2, tbY + 40);
+
+      ctx.font = "bold 9px sans-serif";
+      ctx.fillText(projName, tbX + tbW / 2, tbY + 70);
+
+      ctx.font = "8px sans-serif";
+      ctx.fillText(sheetTitle, tbX + tbW / 2, tbY + 90);
+      ctx.fillText("DATE: " + new Date().toLocaleDateString(), tbX + tbW / 2, tbY + 110);
+      ctx.fillText("SCALE: 1:50 | PURE AI ENGINE", tbX + tbW / 2, tbY + 125);
+    }
+
+    function exportDXF() {
+      const items = scheduleQueue.length > 0 ? scheduleQueue : [currentItem];
+      let dxf = `0\nSECTION\n2\nENTITIES\n`;
+      items.forEach((item, idx) => {
+        dxf += `0\nPOLYLINE\n8\nFRAME\n66\n1\n70\n1\n0\nVERTEX\n8\nFRAME\n10\n${idx*3}\n20\n0\n0\nVERTEX\n8\nFRAME\n10\n${idx*3 + item.width}\n20\n0\n0\nVERTEX\n8\nFRAME\n10\n${idx*3 + item.width}\n20\n${item.height}\n0\nVERTEX\n8\nFRAME\n10\n${idx*3}\n20\n${item.height}\n0\nSEQEND\n`;
+      });
+      dxf += `0\nENDSEC\n0\nEOF\n`;
+      const blob = new Blob([dxf], { type: 'application/dxf' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ASASCO_Drawing.dxf'; a.click();
+    }
+
+    function exportSVG() {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><img src="${canvas.toDataURL()}" /></div></foreignObject></svg>`;
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ASASCO_Sheet.svg'; a.click();
+    }
+
+    function exportPDF() {
+      const win = window.open('', '_blank');
+      win.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;"><img src="${canvas.toDataURL()}" style="max-width:100%;"><script>window.onload=()=>{window.print();window.close();}<\/script></body></html>`);
+      win.document.close();
+    }
+
+    function downloadImage() {
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL();
+      a.download = 'ASASCO_Schedule_Blueprint.png';
+      a.click();
+    }
+
+    window.onload = () => {
+      renderVisualCards();
+      document.getElementById('aiPromptInput').value = "Steel louver door width 1.1 meter height 2.39 meter with 10 panels";
+      processAdvancedPrompt();
+    };
+  </script>
+</body>
+</html>
