@@ -19,8 +19,8 @@
     <div class="flex items-center gap-3">
       <div class="bg-sky-600 p-2 rounded-xl text-lg shadow-lg shadow-sky-900/50">🏗️</div>
       <div>
-        <h1 class="text-base font-extrabold text-sky-400 tracking-wide">ASASCO CAD INDUSTRIAL SUITE <span class="text-[10px] bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded-full ml-2">v11.0 Pro</span></h1>
-        <p class="text-[11px] text-slate-400">Template-Driven Architectural CAD, BOM & Multi-View Engine</p>
+        <h1 class="text-base font-extrabold text-sky-400 tracking-wide">ASASCO CAD INDUSTRIAL SUITE <span class="text-[10px] bg-sky-950 border border-sky-800 text-sky-300 px-2 py-0.5 rounded-full ml-2">v13.0 Strict-Match</span></h1>
+        <p class="text-[11px] text-slate-400">Strict Command-Driven Architectural CAD Engine</p>
       </div>
     </div>
     
@@ -34,26 +34,27 @@
   <!-- MAIN WORKSPACE GRID -->
   <div class="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
     
-    <!-- LEFT SIDEBAR: TEMPLATES & CUSTOMIZATION -->
+    <!-- LEFT SIDEBAR: COMMAND DESCRIPTION & CONTROLS -->
     <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-4 shadow-xl max-h-[86vh] overflow-y-auto">
       
-      <!-- 🏛️ MASTER TEMPLATES CATALOG (Aapke Designs Section) -->
-      <div>
-        <div class="flex justify-between items-center mb-2">
-          <h2 class="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
-            <span>🏛️</span> Master Design Templates
-          </h2>
-          <span class="text-[10px] text-slate-400">Click to Apply</span>
+      <!-- ⌨️ STRICT COMMAND DESCRIPTION INPUT -->
+      <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+        <h2 class="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+          <span>⌨️</span> Natural Description Command
+        </h2>
+        <p class="text-[10px] text-slate-400">Yahan sirf wahi likhein jo banana hai (e.g., <code class="text-sky-300">door 1.1m 2.39m</code>)</p>
+        <div class="flex gap-2">
+          <input type="text" id="commandInput" placeholder="e.g. door 1.1m 2.39m" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-100 font-mono" value="door 1.1m 2.39m">
+          <button onclick="parseAndExecuteCommand()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded text-xs font-bold transition shadow">Generate</button>
         </div>
-        <div class="grid grid-cols-1 gap-2" id="templateCatalogGrid"></div>
       </div>
 
       <hr class="border-slate-800">
 
-      <!-- 🎛️ MANUAL FINE-TUNING & TITLE BLOCK -->
+      <!-- 🎛️ MANUAL CONTROLS & PATTERN -->
       <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
         <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1">
-          <span>🎛️</span> Selected Design Customization
+          <span>🎛️</span> Fine-Tuning & Strict Infill
         </h3>
         
         <div class="grid grid-cols-2 gap-2">
@@ -67,10 +68,21 @@
           </div>
         </div>
 
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">Infill Pattern (Strict Optional)</label>
+          <select id="manualPattern" onchange="applyManualEdits()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-sky-300 font-semibold">
+            <option value="none">None (Plain Frame Shell Only)</option>
+            <option value="louvers">Horizontal Louvers</option>
+            <option value="solid">Solid Metal Sheet</option>
+            <option value="glass">Transparent Glass</option>
+            <option value="grill">Decorative Grill / Jali</option>
+          </select>
+        </div>
+
         <div class="grid grid-cols-3 gap-2">
           <div>
             <label class="block text-[10px] text-slate-400 mb-1">Panels</label>
-            <input type="number" id="manualPanels" min="2" max="30" oninput="applyManualEdits()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-200">
+            <input type="number" id="manualPanels" min="1" max="30" oninput="applyManualEdits()" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-slate-200">
           </div>
           <div>
             <label class="block text-[10px] text-slate-400 mb-1">Hinges</label>
@@ -94,21 +106,21 @@
         </div>
       </div>
 
-      <!-- 📦 BILL OF MATERIALS (BOM) & LAYERS TOGGLE -->
+      <!-- 📦 BILL OF MATERIALS & LAYERS -->
       <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
         <h3 class="text-xs font-bold text-amber-400 flex items-center gap-1">
           <span>📊</span> Bill of Materials & Estimation
         </h3>
         <div class="text-[11px] space-y-1 text-slate-300 bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono">
           <div class="flex justify-between"><span>Total Area:</span> <span id="bomArea" class="text-sky-400">0.00 m²</span></div>
-          <div class="flex justify-between"><span>Est. Steel Weight:</span> <span id="bomWeight" class="text-amber-300">0.00 kg</span></div>
+          <div class="flex justify-between"><span>Est. Material Weight:</span> <span id="bomWeight" class="text-amber-300">0.00 kg</span></div>
           <div class="flex justify-between"><span>Hardware Setup:</span> <span class="text-emerald-400">3 Hinges + 1 Mortise</span></div>
           <div class="flex justify-between border-t border-slate-800 pt-1 font-bold"><span>Est. Cost:</span> <span id="bomCost" class="text-emerald-400">$0</span></div>
         </div>
 
         <div class="flex flex-wrap gap-2 pt-1 text-[11px]">
           <label class="flex items-center gap-1"><input type="checkbox" id="layerFrame" checked onchange="redrawCADCanvas()"> Frame</label>
-          <label class="flex items-center gap-1"><input type="checkbox" id="layerLouvers" checked onchange="redrawCADCanvas()"> Louvers</label>
+          <label class="flex items-center gap-1"><input type="checkbox" id="layerPattern" checked onchange="redrawCADCanvas()"> Infill Pattern</label>
           <label class="flex items-center gap-1"><input type="checkbox" id="layerHardware" checked onchange="redrawCADCanvas()"> Hardware</label>
           <label class="flex items-center gap-1"><input type="checkbox" id="layerDims" checked onchange="redrawCADCanvas()"> Dimensions</label>
         </div>
@@ -127,7 +139,7 @@
           <button onclick="zoomOut()" class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg font-semibold text-slate-200">🔍 Zoom Out</button>
           <button onclick="resetView()" class="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg font-semibold text-slate-200">🔄 Reset View</button>
         </div>
-        <span class="text-sky-400 font-mono bg-sky-950/60 px-3 py-1 rounded-lg border border-sky-900" id="activeDesignTitle">Active: Steel Louver Door</span>
+        <span class="text-sky-400 font-mono bg-sky-950/60 px-3 py-1 rounded-lg border border-sky-900" id="activeDesignTitle">Active: Custom Shell Design</span>
       </div>
 
       <!-- Canvas Container -->
@@ -143,22 +155,14 @@
     const canvas = document.getElementById('cadCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Master Templates Database (Yahan aap apne mazeed designs add kar sakte hain)
-    const TEMPLATES_DATABASE = [
-      { id: 'D1', title: 'Steel Louver Door', desc: 'Standard heavy duty steel louver door with ventilation panels.', w: 1.10, h: 2.39, hinge: 'right', lock: 'left', panels: 10, icon: '🚪' },
-      { id: 'D2', title: 'Executive Glass Door', desc: 'Modern commercial glass door with slim steel borders.', w: 1.00, h: 2.20, hinge: 'left', lock: 'right', panels: 4, icon: '🏛️' },
-      { id: 'D3', title: 'Modern Geometric Gate', desc: 'Designer front main gate with symmetrical pattern lines.', w: 1.30, h: 2.50, hinge: 'right', lock: 'left', panels: 8, icon: '✨' },
-      { id: 'D4', title: 'Heavy Double Garage', desc: 'Industrial multi-panel heavy garage door system.', w: 3.20, h: 3.00, hinge: 'left', lock: 'right', panels: 16, icon: '🚘' }
-    ];
-
     let currentDesign = {
-      id: 'D1',
-      title: "STEEL LOUVER DOOR",
+      title: "CUSTOM SHELL DESIGN",
+      pattern: 'none',
       width: 1.100,
       height: 2.390,
       hingeSide: "right",
       lockSide: "left",
-      panels: 10,
+      panels: 1,
       offsetX: 0,
       offsetY: 0,
       scale: 220
@@ -167,48 +171,52 @@
     let activeTool = 'select';
     let isDragging = false, startX = 0, startY = 0;
 
-    function renderTemplateCatalog() {
-      const grid = document.getElementById('templateCatalogGrid');
-      grid.innerHTML = TEMPLATES_DATABASE.map(t => `
-        <div onclick="loadTemplate('${t.id}')" class="bg-slate-950 border ${currentDesign.id === t.id ? 'border-sky-500 bg-sky-950/20' : 'border-slate-800 hover:border-slate-600'} p-2.5 rounded-xl cursor-pointer transition flex items-center justify-between group">
-          <div class="flex items-center gap-2.5">
-            <span class="text-xl">${t.icon}</span>
-            <div>
-              <div class="text-xs font-bold text-slate-200 group-hover:text-sky-300">${t.title}</div>
-              <div class="text-[10px] text-slate-400">${t.w}m x ${t.h}m | ${t.panels} Panels</div>
-            </div>
-          </div>
-          <span class="text-[10px] bg-slate-900 border border-slate-700 px-2 py-1 rounded text-sky-400 font-mono">Load</span>
-        </div>
-      `).join('');
-    }
+    // Strict Natural Description Parser
+    function parseAndExecuteCommand() {
+      const rawText = document.getElementById('commandInput').value.toLowerCase().trim();
+      
+      // Extract numbers with 'm' or raw floats
+      const matches = rawText.match(/(\d+(\.\d+)?)\s*m?/g);
+      
+      if (matches && matches.length >= 2) {
+        currentDesign.width = parseFloat(matches[0]);
+        currentDesign.height = parseFloat(matches[1]);
+      }
 
-    function loadTemplate(id) {
-      const t = TEMPLATES_DATABASE.find(item => item.id === id);
-      if (!t) return;
-      currentDesign.id = t.id;
-      currentDesign.title = t.title.toUpperCase();
-      currentDesign.width = t.w;
-      currentDesign.height = t.h;
-      currentDesign.hingeSide = t.hinge;
-      currentDesign.lockSide = t.lock;
-      currentDesign.panels = t.panels;
+      // Check explicit patterns mentioned in text
+      if (rawText.includes('louver') || rawText.includes('louvers')) {
+        currentDesign.pattern = 'louvers';
+        currentDesign.panels = 10;
+      } else if (rawText.includes('solid')) {
+        currentDesign.pattern = 'solid';
+        currentDesign.panels = 1;
+      } else if (rawText.includes('glass')) {
+        currentDesign.pattern = 'glass';
+        currentDesign.panels = 4;
+      } else if (rawText.includes('grill') || rawText.includes('jali')) {
+        currentDesign.pattern = 'grill';
+        currentDesign.panels = 6;
+      } else {
+        // Strict fallback: If user didn't write any pattern keyword, keep it 'none' (Plain frame shell)
+        currentDesign.pattern = 'none';
+        currentDesign.panels = 1;
+      }
 
+      // Sync UI fields
       document.getElementById('manualW').value = currentDesign.width;
       document.getElementById('manualH').value = currentDesign.height;
+      document.getElementById('manualPattern').value = currentDesign.pattern;
       document.getElementById('manualPanels').value = currentDesign.panels;
-      document.getElementById('manualHingeSide').value = currentDesign.hingeSide;
-      document.getElementById('manualLockSide').value = currentDesign.lockSide;
-      document.getElementById('activeDesignTitle').innerText = `Active: ${t.title}`;
+      document.getElementById('activeDesignTitle').innerText = `Active: ${rawText.toUpperCase()}`;
 
-      renderTemplateCatalog();
       redrawCADCanvas();
     }
 
     function applyManualEdits() {
       currentDesign.width = parseFloat(document.getElementById('manualW').value) || 1.1;
       currentDesign.height = parseFloat(document.getElementById('manualH').value) || 2.39;
-      currentDesign.panels = parseInt(document.getElementById('manualPanels').value) || 10;
+      currentDesign.panels = parseInt(document.getElementById('manualPanels').value) || 1;
+      currentDesign.pattern = document.getElementById('manualPattern').value;
       currentDesign.hingeSide = document.getElementById('manualHingeSide').value;
       currentDesign.lockSide = document.getElementById('manualLockSide').value;
       redrawCADCanvas();
@@ -242,7 +250,7 @@
       ctx.translate(elevX, elevY);
 
       const showFrame = document.getElementById('layerFrame').checked;
-      const showLouvers = document.getElementById('layerLouvers').checked;
+      const showPattern = document.getElementById('layerPattern').checked;
       const showHardware = document.getElementById('layerHardware').checked;
       const showDims = document.getElementById('layerDims').checked;
 
@@ -254,21 +262,47 @@
         ctx.fillRect(6, 6, w - 12, h - 12);
       }
 
-      if (showLouvers) {
-        const centerW = Math.max(15, w * 0.12);
+      // Strict Conditional Rendering: Only render pattern if user explicitly selected/requested it
+      if (showPattern && currentDesign.pattern !== 'none') {
+        const centerW = Math.max(20, w * 0.75);
         const centerX = (w - centerW) / 2;
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(centerX, 15, centerW, h - 30);
+        const centerY = 15;
+        const centerH = h - 30;
 
-        const stepY = (h - 30) / currentDesign.panels;
-        for (let i = 1; i < currentDesign.panels; i++) {
-          let ly = 15 + i * stepY;
-          ctx.beginPath(); ctx.moveTo(centerX, ly); ctx.lineTo(centerX + centerW, ly); ctx.stroke();
-          
-          ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(10, ly); ctx.lineTo(centerX - 4, ly); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(centerX + centerW + 4, ly); ctx.lineTo(w - 10, ly); ctx.stroke();
+        if (currentDesign.pattern === 'louvers') {
+          ctx.strokeStyle = "#FFFFFF";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(centerX, centerY, centerW, centerH);
+          const stepY = centerH / currentDesign.panels;
+          for (let i = 1; i < currentDesign.panels; i++) {
+            let ly = centerY + i * stepY;
+            ctx.beginPath(); ctx.moveTo(centerX, ly); ctx.lineTo(centerX + centerW, ly); ctx.stroke();
+          }
+        } else if (currentDesign.pattern === 'solid') {
+          ctx.fillStyle = "#334155";
+          ctx.fillRect(centerX, centerY, centerW, centerH);
+          ctx.strokeStyle = "#475569";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(centerX, centerY, centerW, centerH);
+        } else if (currentDesign.pattern === 'glass') {
+          ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+          ctx.fillRect(centerX, centerY, centerW, centerH);
+          ctx.strokeStyle = "#38BDF8";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(centerX, centerY, centerW, centerH);
+          ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.lineTo(centerX + centerW, centerY + centerH); ctx.stroke();
+        } else if (currentDesign.pattern === 'grill') {
+          ctx.strokeStyle = "#F59E0B";
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(centerX, centerY, centerW, centerH);
+          const stepX = centerW / (currentDesign.panels || 4);
+          for (let i = 1; i < (currentDesign.panels || 4); i++) {
+            ctx.beginPath(); ctx.moveTo(centerX + i * stepX, centerY); ctx.lineTo(centerX + i * stepX, centerY + centerH); ctx.stroke();
+          }
+          const stepY = centerH / 6;
+          for (let j = 1; j < 6; j++) {
+            ctx.beginPath(); ctx.moveTo(centerX, centerY + j * stepY); ctx.lineTo(centerX + centerW, centerY + j * stepY); ctx.stroke();
+          }
         }
       }
 
@@ -309,8 +343,8 @@
       drawTitleBlock();
 
       const area = currentDesign.width * currentDesign.height;
-      const weight = area * 34.5;
-      const cost = area * 140;
+      const weight = area * (currentDesign.pattern === 'solid' ? 45.0 : 30.0);
+      const cost = area * 120;
       document.getElementById('bomArea').innerText = area.toFixed(2) + " m²";
       document.getElementById('bomWeight').innerText = weight.toFixed(1) + " kg";
       document.getElementById('bomCost').innerText = "$" + cost.toFixed(0);
@@ -360,8 +394,7 @@
     }
 
     window.onload = () => {
-      renderTemplateCatalog();
-      loadTemplate('D1');
+      parseAndExecuteCommand();
     };
   </script>
 </body>
