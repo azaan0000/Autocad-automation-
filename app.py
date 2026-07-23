@@ -10,7 +10,7 @@ import ezdxf
 # PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="ASASCO AI Smart CAD Studio - 100% Exact Match Master",
+    page_title="ASASCO AI Smart CAD Studio - Final Master Edition",
     page_icon="📐",
     layout="wide"
 )
@@ -36,28 +36,45 @@ if 'door_width' not in st.session_state: st.session_state.door_width = 1.300
 if 'door_height' not in st.session_state: st.session_state.door_height = 3.900
 if 'bar_count' not in st.session_state: st.session_state.bar_count = 10
 if 'element_title' not in st.session_state: st.session_state.element_title = "DOOR (STEEL ON THE STREET)"
+if 'active_layer' not in st.session_state: st.session_state.active_layer = "All Layers (Master View)"
 if 'project_desc' not in st.session_state: 
     st.session_state.project_desc = "Design a heavy-duty modern security door with width 1.300m and height 3.900m, 10 horizontal security bars, vertical fluted center panel, 3 right-side hinges, and left-side handle."
 
-st.title("📐 ASASCO AI Smart CAD Studio [Exact Match Master Engine]")
-st.markdown("Strict geometry mapping: Hinges, center panel, frame bevels, and bars matched precisely to the reference design.")
+st.title("📐 ASASCO AI Smart CAD Studio [Ultimate Master Edition]")
+st.markdown("All features active: Working description parser, modular layers, precise geometry, BOM, and DXF export.")
 
 # ==========================================
-# SIDEBAR - CONTROLS
+# SIDEBAR - ADVANCED CONTROLS & LAYERS
 # ==========================================
-st.sidebar.header("🛠️ Parameters & Controls")
-st.session_state.door_width = st.sidebar.number_input("Width (m)", value=st.session_state.door_width, step=0.01, format="%.3f")
-st.session_state.door_height = st.sidebar.number_input("Height (m)", value=st.session_state.door_height, step=0.01, format="%.3f")
-st.session_state.bar_count = st.sidebar.slider("Horizontal Security Bars", 4, 20, st.session_state.bar_count)
+st.sidebar.header("🛠️ Modular Layer & Component Control")
+st.session_state.active_layer = st.sidebar.selectbox(
+    "Active Design Layer",
+    [
+        "All Layers (Master View)",
+        "A-DOOR-FRAME-EXT",
+        "A-DOOR-FRAME-INT",
+        "A-SECURITY-MESH-HATCH",
+        "A-HORIZONTAL-SECURITY-BARS",
+        "A-CENTER-FLUTED-PANEL",
+        "A-HARDWARE-HINGES-LOCKS",
+        "A-DIMENSION-CALLOUTS"
+    ]
+)
+
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Manual Fine-Tuning")
+st.session_state.door_width = st.sidebar.number_input("Width (m)", value=float(st.session_state.door_width), step=0.01, format="%.3f")
+st.session_state.door_height = st.sidebar.number_input("Height (m)", value=float(st.session_state.door_height), step=0.01, format="%.3f")
+st.session_state.bar_count = st.sidebar.slider("Horizontal Security Bars", 4, 20, int(st.session_state.bar_count))
 st.session_state.element_title = st.sidebar.text_input("Element Title", value=st.session_state.element_title)
 
-st.sidebar.success("🟢 **Status:** 100% Geometry Sync Active.")
+st.sidebar.success("🟢 **Engine Status:** Fully operational.")
 
 # ==========================================
 # MAIN INTERFACE TABS
 # ==========================================
 tab1, tab2, tab3 = st.tabs([
-    "🚀 Description & Exact Blueprint", 
+    "🚀 Description & Live Blueprint", 
     "📂 Bill of Materials (BOM)", 
     "📥 Professional AutoCAD DXF Export"
 ])
@@ -66,110 +83,122 @@ with tab1:
     col_desc, col_view = st.columns([1, 1], gap="medium")
     
     with col_desc:
-        st.subheader("1️⃣ Natural Language Description Parser")
+        st.subheader("1️⃣ Working Description Parser")
         user_description = st.text_area(
-            "Enter customer description:",
+            "Enter customer description (updates drawing parameters instantly):",
             value=st.session_state.project_desc,
-            height=150
+            height=160
         )
         
-        if st.button("✨ Parse & Update Drawing", type="primary", use_container_width=True):
+        if st.button("✨ Parse Description & Update Drawing", type="primary", use_container_width=True):
             st.session_state.project_desc = user_description
             desc_lower = user_description.lower()
             
+            # Live Width Extraction
             w_match = re.search(r'(\d+\.?\d*)\s*(m|meter|meters)', desc_lower)
             if w_match:
-                try: st.session_state.door_width = float(w_match.group(1))
+                try:
+                    val = float(w_match.group(1))
+                    if 0.5 <= val <= 10.0: st.session_state.door_width = val
                 except: pass
                 
+            # Live Height Extraction
             h_match = re.search(r'height.*?(\d+\.?\d*)', desc_lower) or re.search(r'(\d+\.?\d*)\s*(m|meter).*?height', desc_lower)
             if h_match:
-                try: st.session_state.door_height = float(h_match.group(1))
+                try:
+                    val = float(h_match.group(1))
+                    if 0.5 <= val <= 10.0: st.session_state.door_height = val
                 except: pass
 
+            # Live Bar Count Extraction
             bars_match = re.search(r'(\d+)\s*(horizontal bars|bars)', desc_lower)
             if bars_match:
-                try: st.session_state.bar_count = int(bars_match.group(1))
+                try:
+                    val = int(bars_match.group(1))
+                    if 4 <= val <= 20: st.session_state.bar_count = val
                 except: pass
 
-            st.success("✅ Parsed successfully!")
+            st.success("✅ Description parsed and applied successfully to all components!")
             st.rerun()
 
         st.markdown("---")
-        st.info("💡 All proportions, hinge placements on the right, and center fluted panel structures are now locked to the original template.")
+        st.info("💡 You can type any dimensions in the description box above and click parse, or use the sidebar sliders. Both will update the CAD engine instantly.")
 
     with col_view:
-        st.subheader("2️⃣ Exact Match CAD Rendering")
+        st.subheader("2️⃣ Live CAD Blueprint Rendering")
         
-        # High-Precision OpenCV Exact Geometry Renderer
+        # High-Precision OpenCV Rendering Engine with Layer Support
         canvas = np.zeros((850, 650, 3), dtype=np.uint8)
         canvas[:] = (12, 18, 32)
         
         x1, y1 = 100, 80
         x2, y2 = 550, 740
         
-        # 1. Outer Frame with Mitered Corners (Diagonal Cuts like original)
-        cv2.rectangle(canvas, (x1, y1), (x2, y2), (210, 215, 225), 3, cv2.LINE_AA)
-        cv2.line(canvas, (x1, y1), (x1 + 25, y1 + 25), (210, 215, 225), 2, cv2.LINE_AA)
-        cv2.line(canvas, (x2, y1), (x2 - 25, y1 + 25), (210, 215, 225), 2, cv2.LINE_AA)
-        cv2.line(canvas, (x1, y2), (x1 + 25, y2 - 25), (210, 215, 225), 2, cv2.LINE_AA)
-        cv2.line(canvas, (x2, y2), (x2 - 25, y2 - 25), (210, 215, 225), 2, cv2.LINE_AA)
+        show_all = "All Layers" in st.session_state.active_layer
+        
+        # Layer 1: Outer Frame
+        if show_all or "FRAME-EXT" in st.session_state.active_layer:
+            cv2.rectangle(canvas, (x1, y1), (x2, y2), (210, 215, 225), 3, cv2.LINE_AA)
+            cv2.line(canvas, (x1, y1), (x1 + 25, y1 + 25), (210, 215, 225), 2, cv2.LINE_AA)
+            cv2.line(canvas, (x2, y1), (x2 - 25, y1 + 25), (210, 215, 225), 2, cv2.LINE_AA)
+            cv2.line(canvas, (x1, y2), (x1 + 25, y2 - 25), (210, 215, 225), 2, cv2.LINE_AA)
+            cv2.line(canvas, (x2, y2), (x2 - 25, y2 - 25), (210, 215, 225), 2, cv2.LINE_AA)
 
-        # 2. Inner Door Leaf Frame
+        # Layer 2: Inner Frame
         ix1, iy1, ix2, iy2 = x1 + 18, y1 + 18, x2 - 18, y2 - 18
-        cv2.rectangle(canvas, (ix1, iy1), (ix2, iy2), (148, 163, 184), 2, cv2.LINE_AA)
-        
-        # 3. Security Mesh Background Hatching
-        for mx in range(ix1 + 20, ix2 - 15, 30):
-            cv2.line(canvas, (mx, iy1 + 5), (mx, iy2 - 5), (35, 45, 60), 1, cv2.LINE_AA)
-        for my in range(iy1 + 25, iy2 - 15, 40):
-            cv2.line(canvas, (ix1 + 5, my), (ix2 - 5, my), (35, 45, 60), 1, cv2.LINE_AA)
-
-        # 4. Horizontal Security Bars + Center Vertical Backbone Bar
-        bar_coords = np.linspace(iy1 + 45, iy2 - 45, st.session_state.bar_count)
-        cx, cy = (ix1 + ix2) // 2, (iy1 + iy2) // 2
-        
-        for by in bar_coords:
-            cv2.line(canvas, (ix1 + 5, int(by)), (ix2 - 5, int(by)), (220, 225, 235), 2, cv2.LINE_AA)
+        if show_all or "FRAME-INT" in st.session_state.active_layer:
+            cv2.rectangle(canvas, (ix1, iy1), (ix2, iy2), (148, 163, 184), 2, cv2.LINE_AA)
             
-        # Center Vertical Backbone Bar crossing through horizontal bars (exactly like original image)
-        cv2.line(canvas, (cx, iy1 + 5), (cx, iy2 - 5), (220, 225, 235), 2, cv2.LINE_AA)
+        # Layer 3: Security Mesh Hatching
+        if show_all or "MESH-HATCH" in st.session_state.active_layer:
+            for mx in range(ix1 + 20, ix2 - 15, 30):
+                cv2.line(canvas, (mx, iy1 + 5), (mx, iy2 - 5), (35, 45, 60), 1, cv2.LINE_AA)
+            for my in range(iy1 + 25, iy2 - 15, 40):
+                cv2.line(canvas, (ix1 + 5, my), (ix2 - 5, my), (35, 45, 60), 1, cv2.LINE_AA)
 
-        # 5. Center Fluted / Ribbed Panel (Placed perfectly in the middle)
-        pw, ph = 100, 360
-        px1, py1 = cx - (pw // 2), cy - (ph // 2)
-        px2, py2 = cx + (pw // 2), cy + (ph // 2)
-        
-        cv2.rectangle(canvas, (px1, py1), (px2, py2), (245, 158, 11), 2, cv2.LINE_AA)
-        cv2.rectangle(canvas, (px1 + 2, py1 + 2), (px2 - 2, py2 - 2), (18, 24, 38), -1)
-        
-        # Flutes inside panel
-        for rx in range(px1 + 12, px2, 14):
-            cv2.line(canvas, (rx, py1 + 8), (rx, py2 - 8), (245, 158, 11), 1, cv2.LINE_AA)
+        # Layer 4: Horizontal Security Bars & Center Vertical Backbone
+        if show_all or "SECURITY-BARS" in st.session_state.active_layer:
+            bar_coords = np.linspace(iy1 + 45, iy2 - 45, st.session_state.bar_count)
+            cx, cy = (ix1 + ix2) // 2, (iy1 + iy2) // 2
+            for by in bar_coords:
+                cv2.line(canvas, (ix1 + 5, int(by)), (ix2 - 5, int(by)), (220, 225, 235), 2, cv2.LINE_AA)
+            cv2.line(canvas, (cx, iy1 + 5), (cx, iy2 - 5), (220, 225, 235), 2, cv2.LINE_AA)
 
-        # 6. Hinges Strictly on the RIGHT Edge (3 Pcs matching original reference)
-        hinge_x = x2 - 3
-        hinge_h = 40
-        for hy in [y1 + 90, cy - 20, y2 - 130]:
-            cv2.rectangle(canvas, (int(hinge_x), int(hy)), (int(hinge_x) + 12, int(hy) + hinge_h), (245, 158, 11), -1, cv2.LINE_AA)
+        # Layer 5: Center Fluted Panel
+        if show_all or "FLUTED-PANEL" in st.session_state.active_layer:
+            cx, cy = (ix1 + ix2) // 2, (iy1 + iy2) // 2
+            pw, ph = 100, 360
+            px1, py1 = cx - (pw // 2), cy - (ph // 2)
+            px2, py2 = cx + (pw // 2), cy + (ph // 2)
+            cv2.rectangle(canvas, (px1, py1), (px2, py2), (245, 158, 11), 2, cv2.LINE_AA)
+            cv2.rectangle(canvas, (px1 + 2, py1 + 2), (px2 - 2, py2 - 2), (18, 24, 38), -1)
+            for rx in range(px1 + 12, px2, 14):
+                cv2.line(canvas, (rx, py1 + 8), (rx, py2 - 8), (245, 158, 11), 1, cv2.LINE_AA)
 
-        # 7. Handle / Lock strictly on the LEFT Edge
-        handle_x = x1 - 3
-        cv2.rectangle(canvas, (int(handle_x) - 15, cy - 15), (int(handle_x), cy + 25), (245, 158, 11), -1, cv2.LINE_AA)
-        cv2.line(canvas, (int(handle_x) - 15, cy + 5), (int(handle_x) - 35, cy + 5), (245, 158, 11), 3, cv2.LINE_AA)
+        # Layer 6: Hardware Hinges & Locks
+        if show_all or "HINGES-LOCKS" in st.session_state.active_layer:
+            cx, cy = (ix1 + ix2) // 2, (iy1 + iy2) // 2
+            hinge_x = x2 - 3
+            for hy in [y1 + 90, cy - 20, y2 - 130]:
+                cv2.rectangle(canvas, (int(hinge_x), int(hy)), (int(hinge_x) + 12, int(hy) + 40), (245, 158, 11), -1, cv2.LINE_AA)
+            handle_x = x1 - 3
+            cv2.rectangle(canvas, (int(handle_x) - 15, cy - 15), (int(handle_x), cy + 25), (245, 158, 11), -1, cv2.LINE_AA)
+            cv2.line(canvas, (int(handle_x) - 15, cy + 5), (int(handle_x) - 35, cy + 5), (245, 158, 11), 3, cv2.LINE_AA)
 
-        # 8. Dimension Callouts
-        cv2.line(canvas, (x1, y1 - 35), (x2, y1 - 35), (56, 189, 248), 2, cv2.LINE_AA)
-        cv2.putText(canvas, f"{st.session_state.door_width:.3f} m", (cx - 45, y1 - 45), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (56, 189, 248), 2, cv2.LINE_AA)
-        
-        cv2.line(canvas, (x1 - 40, y1), (x1 - 40, y2), (56, 189, 248), 2, cv2.LINE_AA)
-        cv2.putText(canvas, f"{st.session_state.door_height:.3f} m", (x1 - 85, cy + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (56, 189, 248), 2, cv2.LINE_AA)
+        # Layer 7: Dimension Callouts
+        if show_all or "DIMENSION-CALLOUTS" in st.session_state.active_layer:
+            cx, cy = (ix1 + ix2) // 2, (iy1 + iy2) // 2
+            cv2.line(canvas, (x1, y1 - 35), (x2, y1 - 35), (56, 189, 248), 2, cv2.LINE_AA)
+            cv2.putText(canvas, f"{st.session_state.door_width:.3f} m", (cx - 45, y1 - 45), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (56, 189, 248), 2, cv2.LINE_AA)
+            
+            cv2.line(canvas, (x1 - 40, y1), (x1 - 40, y2), (56, 189, 248), 2, cv2.LINE_AA)
+            cv2.putText(canvas, f"{st.session_state.door_height:.3f} m", (x1 - 85, cy + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (56, 189, 248), 2, cv2.LINE_AA)
 
         # Footer Title Tag
         cv2.putText(canvas, f"[{st.session_state.element_title}]", (x1 + 10, y2 + 42), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (255, 255, 255), 2, cv2.LINE_AA)
 
         st.image(cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB), use_container_width=True)
-        st.success("✨ 100% Exact Geometry Match: Right-side hinges, left handle, center vertical backbone, and fluted panel verified!")
+        st.success("✨ CAD Blueprint rendered successfully with active parser and geometry sync!")
 
 with tab2:
     st.subheader("📂 Bill of Materials (BOM)")
@@ -196,8 +225,9 @@ with tab3:
         st.download_button(
             label="💾 Download .DXF File",
             data=dxf_buffer.getvalue().encode('utf-8'),
-            file_name="asasco_exact_match_door.dxf",
+            file_name="asasco_master_door.dxf",
             mime="application/dxf"
         )
         st.success("DXF compiled successfully!")
+        
     
